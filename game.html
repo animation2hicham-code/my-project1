@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play Against AI - Tic Tac Toe</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e1e2f, #11111d);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-align: center;
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .status {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            color: #a0a0c0;
+            text-align: center;
+            min-height: 30px;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 12px;
+            background-color: #2a2a40;
+            padding: 12px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .cell {
+            background-color: #1a1a2e;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .cell:hover {
+            background-color: #252545;
+            transform: scale(1.03);
+        }
+
+        .cell.x {
+            color: #ff4757;
+        }
+
+        .cell.o {
+            color: #2ed573;
+        }
+
+        .cell.taken {
+            cursor: not-allowed;
+        }
+
+        .controls {
+            margin-top: 25px;
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #2ed573, #1e90ff);
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 213, 115, 0.4);
+        }
+
+        .score-board {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+            background: #252538;
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-size: 1rem;
+        }
+
+        .score-item span {
+            font-weight: bold;
+            color: #2ed573;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎮 Play vs AI</h1>
+
+    <div class="score-board">
+        <div class="score-item">You (X): <span id="user-score">0</span></div>
+        <div class="score-item">Ties: <span id="ties-score">0</span></div>
+        <div class="score-item">AI (O): <span id="ai-score">0</span></div>
+    </div>
+
+    <div class="status" id="status">Your turn! Click any cell.</div>
+
+    <div class="board" id="board">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
+    </div>
+
+    <div class="controls">
+        <button onclick="restartGame()">Restart Game</button>
+    </div>
+
+    <script>
+        const board = document.getElementById('board');
+        const cells = document.querySelectorAll('.cell');
+        const statusText = document.getElementById('status');
+        
+        let gameState = ["", "", "", "", "", "", "", "", ""];
+        let isGameActive = true;
+        let humanPlayer = "X";
+        let aiPlayer = "O";
+
+        let userWins = 0;
+        let aiWins = 0;
+        let ties = 0;
+
+        const winningConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+            [0, 4, 8], [2, 4, 6]             // Diagonals
+        ];
+
+        cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+
+        function handleCellClick(e) {
+            const clickedCell = e.target;
+            const clickedIndex = parseInt(clickedCell.getAttribute('data-index'));
+
+            if (gameState[clickedIndex] !== "" || !isGameActive) return;
+
+            // Human Turn
+            makeMove(clickedIndex, humanPlayer);
+
+            if (checkWin(gameState, humanPlayer)) {
+                statusText.innerText = "🎉 You Won!";
+                userWins++;
+                document.getElementById('user-score').innerText = userWins;
+                isGameActive = false;
+                return;
+            }
+
+            if (isBoardFull(gameState)) {
+                statusText.innerText = "🤝 It's a Tie!";
+                ties++;
+                document.getElementById('ties-score').innerText = ties;
+                isGameActive = false;
+                return;
+            }
+
+            // AI Turn
+            isGameActive = false;
+            statusText.innerText = "🤖 AI is thinking...";
+
+            setTimeout(() => {
+                const bestMove = getBestMove();
+                makeMove(bestMove, aiPlayer);
+
+                if (checkWin(gameState, aiPlayer)) {
+                    statusText.innerText = "🤖 AI Won!";
+                    aiWins++;
+                    document.getElementById('ai-score').innerText = aiWins;
+                    isGameActive = false;
+                } else if (isBoardFull(gameState)) {
+                    statusText.innerText = "🤝 It's a Tie!";
+                    ties++;
+                    document.getElementById('ties-score').innerText = ties;
+                    isGameActive = false;
+                } else {
+                    statusText.innerText = "Your turn!";
+                    isGameActive = true;
+                }
+            }, 400);
+        }
+
+        function makeMove(index, player) {
+            gameState[index] = player;
+            cells[index].innerText = player;
+            cells[index].classList.add(player.toLowerCase(), 'taken');
+        }
+
+        function isBoardFull(board) {
+            return board.every(cell => cell !== "");
+        }
+
+        function checkWin(board, player) {
+            return winningConditions.some(condition => {
+                return condition.every(index => board[index] === player);
+            });
+        }
+
+        // Minimax Algorithm for Smart AI
+        function getBestMove() {
+            let bestScore = -Infinity;
+            let move;
+
+            for (let i = 0; i < 9; i++) {
+                if (gameState[i] === "") {
+                    gameState[i] = aiPlayer;
+                    let score = minimax(gameState, 0, false);
+                    gameState[i] = "";
+                    if (score > bestScore) {
+                        bestScore = score;
+                        move = i;
+                    }
+                }
+            }
+            return move;
+        }
+
+        function minimax(board, depth, isMaximizing) {
+            if (checkWin(board, aiPlayer)) return 10 - depth;
+            if (checkWin(board, humanPlayer)) return depth - 10;
+            if (isBoardFull(board)) return 0;
+
+            if (isMaximizing) {
+                let bestScore = -Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (board[i] === "") {
+                        board[i] = aiPlayer;
+                        let score = minimax(board, depth + 1, false);
+                        board[i] = "";
+                        bestScore = Math.max(score, bestScore);
+                    }
+                }
+                return bestScore;
+            } else {
+                let bestScore = Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (board[i] === "") {
+                        board[i] = humanPlayer;
+                        let score = minimax(board, depth + 1, true);
+                        board[i] = "";
+                        bestScore = Math.min(score, bestScore);
+                    }
+                }
+                return bestScore;
+            }
+        }
+
+        function restartGame() {
+            gameState = ["", "", "", "", "", "", "", "", ""];
+            isGameActive = true;
+            statusText.innerText = "Your turn! Click any cell.";
+            cells.forEach(cell => {
+                cell.innerText = "";
+                cell.className = "cell";
+            });
+        }
+    </script>
+</body>
+</html>
