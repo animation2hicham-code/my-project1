@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Arena - Live Scores & AI Gaming Hub</title>
+    <!-- Google Fonts & FontAwesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-main: #0b0f19;
+            --bg-card: rgba(22, 31, 49, 0.7);
+            --border-card: rgba(255, 255, 255, 0.08);
+            --primary-accent: #6366f1;
+            --secondary-accent: #06b6d4;
+            --accent-gradient: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.12) 0%, transparent 40%);
+        }
+
+        /* Navbar Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 8%;
+            background: rgba(11, 15, 25, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-card);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        nav {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-card);
+            color: var(--text-main);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn.active, .nav-btn:hover {
+            background: var(--accent-gradient);
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Football Matches Section */
+        .matches-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .match-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .match-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(99, 102, 241, 0.4);
+        }
+
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+
+        .match-teams {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            width: 35%;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .team-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--secondary-accent);
+        }
+
+        .score-badge {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        /* AI Gaming Area */
+        .game-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .score-board {
+            display: flex;
+            gap: 30px;
+            background: var(--bg-card);
+            padding: 12px 30px;
+            border-radius: 30px;
+            border: 1px solid var(--border-card);
+            margin-bottom: 10px;
+        }
+
+        .status-msg {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            min-height: 30px;
+        }
+
+        .tic-board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 15px;
+            border-radius: 20px;
+            border: 1px solid var(--border-card);
+        }
+
+        .cell {
+            background: var(--bg-card);
+            border-radius: 14px;
+            border: 1px solid var(--border-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cell:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.03);
+        }
+
+        .cell.x { color: var(--primary-accent); }
+        .cell.o { color: var(--secondary-accent); }
+
+        .btn-reset {
+            background: var(--accent-gradient);
+            border: none;
+            color: #fff;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(99, 102, 241, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .btn-reset:hover {
+            transform: scale(1.05);
+        }
+
+        /* Utility classes */
+        .hidden { display: none !important; }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-card);
+            font-size: 0.85rem;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <i class="fa-solid fa-gamepad"></i> NEXUS
+        </div>
+        <nav>
+            <button class="nav-btn active" onclick="switchTab('scores')"><i class="fa-solid fa-trophy"></i> Live Scores</button>
+            <button class="nav-btn" onclick="switchTab('games')"><i class="fa-solid fa-robot"></i> Play vs AI</button>
+        </nav>
+    </header>
+
+    <div class="container">
+        
+        <!-- SECTION 1: FOOTBALL SCORES -->
+        <section id="scores-section">
+            <h2 class="section-title"><i class="fa-solid fa-bolt" style="color: #f59e0b;"></i> Daily Matches</h2>
+            <div class="matches-grid" id="matches-grid">
+                <!-- Matches will be dynamically generated -->
+            </div>
+        </section>
+
+        <!-- SECTION 2: AI GAME -->
+        <section id="games-section" class="hidden">
+            <h2 class="section-title"><i class="fa-solid fa-brain" style="color: #a855f7;"></i> Smart AI Tic-Tac-Toe</h2>
+            <div class="game-wrapper">
+                <div class="score-board">
+                    <div>You: <span id="score-user" style="color:var(--primary-accent); font-weight:bold;">0</span></div>
+                    <div>Draws: <span id="score-ties" style="color:var(--text-muted); font-weight:bold;">0</span></div>
+                    <div>AI: <span id="score-ai" style="color:var(--secondary-accent); font-weight:bold;">0</span></div>
+                </div>
+
+                <div class="status-msg" id="status-msg">Your Turn! Select a cell.</div>
+
+                <div class="tic-board" id="tic-board">
+                    <div class="cell" data-index="0"></div>
+                    <div class="cell" data-index="1"></div>
+                    <div class="cell" data-index="2"></div>
+                    <div class="cell" data-index="3"></div>
+                    <div class="cell" data-index="4"></div>
+                    <div class="cell" data-index="5"></div>
+                    <div class="cell" data-index="6"></div>
+                    <div class="cell" data-index="7"></div>
+                    <div class="cell" data-index="8"></div>
+                </div>
+
+                <button class="btn-reset" onclick="resetGame()">Restart Match</button>
+            </div>
+        </section>
+
+    </div>
+
+    <footer>
+        &copy; Powered by GitHub Pages & Nexus Tech. All rights reserved.
+    </footer>
+
+    <script>
+        // Tab Navigation
+        function switchTab(tab) {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            if(tab === 'scores') {
+                document.getElementById('scores-section').classList.remove('hidden');
+                document.getElementById('games-section').classList.add('hidden');
+                event.target.classList.add('active');
+            } else {
+                document.getElementById('scores-section').classList.add('hidden');
+                document.getElementById('games-section').classList.remove('hidden');
+                event.target.classList.add('active');
+            }
+        }
+
+        // Live Scores Generation (Automated Mock Feed)
+        const mockMatches = [
+            { home: "Real Madrid", away: "Barcelona", score: "2 - 1", status: "FT", league: "La Liga" },
+            { home: "Arsenal", away: "Chelsea", score: "3 - 0", status: "FT", league: "Premier League" },
+            { home: "Man City", away: "Liverpool", score: "1 - 1", status: "78'", league: "Premier League" },
+            { home: "PSG", away: "Marseille", score: "0 - 0", status: "21:00", league: "Ligue 1" },
+            { home: "Bayern Munich", away: "Dortmund", score: "4 - 2", status: "FT", league: "Bundesliga" },
+            { home: "Inter Milan", away: "AC Milan", score: "1 - 0", status: "FT", league: "Serie A" }
+        ];
+
+        function renderMatches() {
+            const grid = document.getElementById('matches-grid');
+            grid.innerHTML = '';
+            mockMatches.forEach(m => {
+                const card = document.createElement('div');
+                card.className = 'match-card';
+                card.innerHTML = `
+                    <div class="match-header">
+                        <span>${m.league}</span>
+                        <span style="color: ${m.status === 'FT' ? 'var(--text-muted)' : 'var(--success)'}">${m.status}</span>
+                    </div>
+                    <div class="match-teams">
+                        <div class="team">
+                            <div class="team-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                            <span>${m.home}</span>
+                        </div>
+                        <div class="score-badge">${m.score}</div>
+                        <div class="team">
+                            <div class="team-icon"><i class="fa-solid fa-shield-cat"></i></div>
+                            <span>${m.away}</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+        renderMatches();
+
+        // Minimax AI Engine for Tic Tac Toe
+        const cells = document.querySelectorAll('.cell');
+        const statusMsg = document.getElementById('status-msg');
+        let gameState = ["", "", "", "", "", "", "", "", ""];
+        let isGameActive = true;
+        let human = "X", ai = "O";
+        let uWins = 0, aWins = 0, ties = 0;
+
+        const winCombos = [
+            [0,1,2], [3,4,5], [6,7,8],
+            [0,3,6], [1,4,7], [2,5,8],
+            [0,4,8], [2,4,6]
+        ];
+
+        cells.forEach(c => c.addEventListener('click', cellClick));
+
+        function cellClick(e) {
+            const idx = e.target.getAttribute('data-index');
+            if(gameState[idx] !== "" || !isGameActive) return;
+
+            makeMove(idx, human);
+
+            if(checkWin(gameState, human)) {
+                statusMsg.innerText = "🎉 You Won!";
+                uWins++; document.getElementById('score-user').innerText = uWins;
+                isGameActive = false;
+                return;
+            }
+            if(isFull(gameState)) {
+                statusMsg.innerText = "🤝 Draw Game!";
+                ties++; document.getElementById('score-ties').innerText = ties;
+                isGameActive = false;
+                return;
+            }
+
+            isGameActive = false;
+            statusMsg.innerText = "🤖 AI Thinking...";
+
+            setTimeout(() => {
+                let bestMove = minimax(gameState, ai).index;
+                makeMove(bestMove, ai);
+
+                if(checkWin(gameState, ai)) {
+                    statusMsg.innerText = "🤖 AI Won!";
+                    aWins++; document.getElementById('score-ai').innerText = aWins;
+                    isGameActive = false;
+                } else if(isFull(gameState)) {
+                    statusMsg.innerText = "🤝 Draw Game!";
+                    ties++; document.getElementById('score-ties').innerText = ties;
+                    isGameActive = false;
+                } else {
+                    statusMsg.innerText = "Your Turn!";
+                    isGameActive = true;
+                }
+            }, 300);
+        }
+
+        function makeMove(idx, player) {
+            gameState[idx] = player;
+            cells[idx].innerText = player;
+            cells[idx].classList.add(player.toLowerCase());
+        }
+
+        function isFull(board) { return board.every(c => c !== ""); }
+
+        function checkWin(board, p) {
+            return winCombos.some(combo => combo.every(i => board[i] === p));
+        }
+
+        function minimax(newBoard, player) {
+            let availSpots = newBoard.map((val, idx) => val === "" ? idx : null).filter(val => val !== null);
+
+            if (checkWin(newBoard, human)) return {score: -10};
+            if (checkWin(newBoard, ai)) return {score: 10};
+            if (availSpots.length === 0) return {score: 0};
+
+            let moves = [];
+            for (let i = 0; i < availSpots.length; i++) {
+                let move = {};
+                move.index = availSpots[i];
+                newBoard[availSpots[i]] = player;
+
+                if (player === ai) {
+                    let result = minimax(newBoard, human);
+                    move.score = result.score;
+                } else {
+                    let result = minimax(newBoard, ai);
+                    move.score = result.score;
+                }
+
+                newBoard[availSpots[i]] = "";
+                moves.push(move);
+            }
+
+            let bestMove;
+            if(player === ai) {
+                let bestScore = -10000;
+                for(let i = 0; i < moves.length; i++) {
+                    if (moves[i].score > bestScore) {
+                        bestScore = moves[i].score;
+                        bestMove = i;
+                    }
+                }
+            } else {
+                let bestScore = 10000;
+                for(let i = 0; i < moves.length; i++) {
+                    if (moves[i].score < bestScore) {
+                        bestScore = moves[i].score;
+                        bestMove = i;
+                    }
+                }
+            }
+            return moves[bestMove];
+        }
+
+        function resetGame() {
+            gameState = ["", "", "", "", "", "", "", "", ""];
+            isGameActive = true;
+            statusMsg.innerText = "Your Turn!";
+            cells.forEach(c => {
+                c.innerText = "";
+                c.className = "cell";
+            });
+        }
+    </script>
+</body>
+</html>
