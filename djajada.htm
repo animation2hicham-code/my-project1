@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dar Souk – Produits artisanaux du Maroc</title>
+<meta name="description" content="Boutique en ligne de produits artisanaux marocains. Commande facile par WhatsApp.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap">
+<style>
+:root{
+  --bg:#F6F1E7; --card:#FFFDF8; --ink:#1B1B2F; --muted:#5d5d70; --blue:#2B3FD6; --blue-ink:#fff; --gold:#F2B632; --line:#e2dac8;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14142a;--card:#1d1d3a;--ink:#f4f0e6;--muted:#a9a9c4;--blue:#7d8cff;--blue-ink:#10102a;--line:#2f2f55}}
+:root[data-theme="dark"]{--bg:#14142a;--card:#1d1d3a;--ink:#f4f0e6;--muted:#a9a9c4;--blue:#7d8cff;--blue-ink:#10102a;--line:#2f2f55}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,-apple-system,Segoe UI,Arial,sans-serif;line-height:1.55}
+a{color:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);border-bottom:1px solid var(--line);z-index:5}
+header .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+.logo{font-weight:800;font-size:1.3rem;text-decoration:none}
+nav{display:flex;gap:18px;align-items:center}
+nav a{text-decoration:none;font-weight:600}
+button{font:inherit;cursor:pointer}
+.btn{background:var(--blue);color:var(--blue-ink);border:0;border-radius:8px;padding:10px 18px;font-weight:600;text-decoration:none;display:inline-block}
+.btn:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.btn.alt{background:transparent;color:var(--ink);border:2px solid var(--ink)}
+#cartBtn{background:transparent;border:2px solid var(--ink);color:var(--ink);border-radius:8px;padding:6px 12px;font-weight:600}
+.hero{padding:64px 0 48px}
+.hero h1{font-size:clamp(2.2rem,6vw,4.2rem);line-height:1.05;margin:0 0 16px;font-weight:800;max-width:14ch}
+.hero p{max-width:48ch;color:var(--muted);font-size:1.1rem;margin:0 0 24px}
+.hero .row{display:flex;gap:12px;flex-wrap:wrap}
+.band{height:10px;background:repeating-linear-gradient(90deg,var(--blue) 0 40px,var(--gold) 40px 60px)}
+section{padding:48px 0}
+h2{font-size:1.9rem;margin:0 0 20px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:6px 16px;font-weight:600}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.thumb{height:170px;display:grid;place-items:center;font-size:4rem}
+.card .body{padding:16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.card h3{margin:0;font-size:1.1rem}
+.card p{margin:0;color:var(--muted);font-size:.92rem;flex:1}
+.price{font-weight:800;font-size:1.15rem}
+.card .foot{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.about{display:grid;gap:24px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.about div{border-left:4px solid var(--gold);padding-left:14px}
+.about h3{margin:0 0 4px}
+.about p{margin:0;color:var(--muted)}
+footer{border-top:1px solid var(--line);padding:32px 0;color:var(--muted)}
+/* cart drawer */
+#drawer{position:fixed;top:0;right:0;height:100%;width:min(400px,100%);background:var(--card);border-left:1px solid var(--line);transform:translateX(100%);transition:transform .25s;z-index:20;display:flex;flex-direction:column;padding:20px;padding-top:calc(20px + env(safe-area-inset-top,0px));padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))}
+#drawer.open{transform:none}
+#drawer header{position:static;border:0;background:none;display:flex;justify-content:space-between;align-items:center;height:auto;margin-bottom:12px}
+#drawer h2{margin:0;font-size:1.4rem}
+#items{flex:1;overflow:auto}
+.item{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.qty{display:flex;align-items:center;gap:8px;margin-top:4px}
+.qty button{width:28px;height:28px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.total{display:flex;justify-content:space-between;font-weight:800;font-size:1.2rem;margin:14px 0}
+#drawer input,#drawer textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;margin-bottom:8px}
+.empty{color:var(--muted);padding:20px 0}
+#veil{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:15}
+#veil.open{display:block}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="logo" href="#top">Dar Souk</a>
+    <nav>
+      <a href="#produits">Produits</a>
+      <a href="#apropos">À propos</a>
+      <a href="#contact">Contact</a>
+      <button id="cartBtn" aria-label="Ouvrir le panier">Panier (<span id="count">0</span>)</button>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap hero">
+    <h1>L’artisanat marocain, livré chez vous.</h1>
+    <p>Tapis, poteries, huile d’argan et plus encore, faits à la main par des artisans de Fès, Essaouira et Marrakech.</p>
+    <div class="row">
+      <a class="btn" href="#produits">Voir les produits</a>
+      <a class="btn alt" href="#contact">Nous contacter</a>
+    </div>
+  </div>
+  <div class="band"></div>
+
+  <section id="produits">
+    <div class="wrap">
+      <h2>Nos produits</h2>
+      <div class="filters" id="filters" role="group" aria-label="Filtrer par catégorie"></div>
+      <div class="grid" id="grid"></div>
+    </div>
+  </section>
+
+  <section id="apropos" style="background:var(--card)">
+    <div class="wrap">
+      <h2>Pourquoi Dar Souk</h2>
+      <div class="about">
+        <div><h3>Fait main</h3><p>Chaque pièce est fabriquée par un artisan, jamais en usine.</p></div>
+        <div><h3>Paiement à la livraison</h3><p>Vous payez quand vous recevez votre commande.</p></div>
+        <div><h3>Livraison partout au Maroc</h3><p>Entre 2 et 4 jours selon la ville.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="wrap">
+      <h2>Contact</h2>
+      <p>Une question ? Écrivez-nous sur WhatsApp ou par email.</p>
+      <p>
+        <a class="btn" id="waLink" href="#" target="_blank" rel="noopener">WhatsApp</a>
+        <a class="btn alt" href="mailto:contact@darsouk.example">contact@darsouk.example</a>
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">© <span id="year"></span> Dar Souk. Tous droits réservés.</div>
+</footer>
+
+<div id="veil"></div>
+<aside id="drawer" aria-label="Panier" aria-hidden="true">
+  <header>
+    <h2>Votre panier</h2>
+    <button id="closeCart" class="chip" aria-label="Fermer le panier">Fermer</button>
+  </header>
+  <div id="items"></div>
+  <div class="total"><span>Total</span><span id="total">0 MAD</span></div>
+  <input id="name" placeholder="Votre nom" autocomplete="name">
+  <input id="city" placeholder="Ville" autocomplete="address-level2">
+  <button class="btn" id="order">Commander sur WhatsApp</button>
+</aside>
+
+<script>
+/* ====== À MODIFIER ====== */
+var WHATSAPP = "212600000000"; // ton numéro: indicatif pays + numéro, sans + ni espaces
+var PRODUCTS = [
+  {id:1, name:"Tapis berbère", cat:"Maison", price:1200, emoji:"🧶", color:"#e9c9a0", desc:"Laine tissée à la main, 120×80 cm."},
+  {id:2, name:"Tajine en terre cuite", cat:"Cuisine", price:180, emoji:"🍲", color:"#e4b08a", desc:"Poterie de Safi, utilisable au feu doux."},
+  {id:3, name:"Huile d’argan pure", cat:"Beauté", price:140, emoji:"🫒", color:"#d9d98f", desc:"Flacon de 100 ml, pressée à froid."},
+  {id:4, name:"Babouches en cuir", cat:"Mode", price:220, emoji:"👞", color:"#f0c36a", desc:"Cuir véritable, semelle souple."},
+  {id:5, name:"Lanterne en laiton", cat:"Maison", price:350, emoji:"🏮", color:"#f2a99a", desc:"Ciselée à la main, hauteur 40 cm."},
+  {id:6, name:"Service à thé", cat:"Cuisine", price:450, emoji:"🫖", color:"#a9c6e8", desc:"Théière et 6 verres décorés."},
+  {id:7, name:"Savon noir beldi", cat:"Beauté", price:45, emoji:"🧼", color:"#bcb6a4", desc:"Pour le hammam, pot de 200 g."},
+  {id:8, name:"Sac en cuir", cat:"Mode", price:520, emoji:"👜", color:"#d9a98a", desc:"Tanné à Fès, bandoulière réglable."}
+];
+/* ======================== */
+
+var cart = {};
+try { cart = JSON.parse(localStorage.getItem("cart") || "{}") || {}; } catch (e) { cart = {}; }
+var activeCat = "Tous";
+
+function $(id){ return document.getElementById(id); }
+function money(n){ return n.toLocaleString("fr-FR") + " MAD"; }
+function save(){ try { localStorage.setItem("cart", JSON.stringify(cart)); } catch (e) {} }
+function find(id){ return PRODUCTS.filter(function(p){ return p.id == id; })[0]; }
+
+function renderFilters(){
+  var cats = ["Tous"];
+  PRODUCTS.forEach(function(p){ if (cats.indexOf(p.cat) < 0) cats.push(p.cat); });
+  $("filters").innerHTML = cats.map(function(c){
+    return '<button class="chip" data-cat="'+c+'" aria-pressed="'+(c===activeCat)+'">'+c+'</button>';
+  }).join("");
+}
+function renderGrid(){
+  var list = PRODUCTS.filter(function(p){ return activeCat === "Tous" || p.cat === activeCat; });
+  $("grid").innerHTML = list.map(function(p){
+    return '<article class="card"><div class="thumb" style="background:'+p.color+'" aria-hidden="true">'+p.emoji+'</div>'+
+      '<div class="body"><h3>'+p.name+'</h3><p>'+p.desc+'</p>'+
+      '<div class="foot"><span class="price">'+money(p.price)+'</span>'+
+      '<button class="btn" data-add="'+p.id+'">Ajouter</button></div></div></article>';
+  }).join("");
+}
+function renderCart(){
+  var ids = Object.keys(cart), total = 0, n = 0;
+  var html = ids.map(function(id){
+    var p = find(id), q = cart[id]; if (!p) return "";
+    total += p.price * q; n += q;
+    return '<div class="item"><div><strong>'+p.name+'</strong><div class="qty">'+
+      '<button data-dec="'+id+'" aria-label="Retirer un">−</button><span>'+q+'</span>'+
+      '<button data-inc="'+id+'" aria-label="Ajouter un">+</button></div></div><div>'+money(p.price*q)+'</div></div>';
+  }).join("");
+  $("items").innerHTML = html || '<p class="empty">Votre panier est vide. Ajoutez un produit pour commencer.</p>';
+  $("total").textContent = money(total);
+  $("count").textContent = n;
+  $("order").disabled = !n;
+  save();
+}
+function openCart(open){
+  $("drawer").classList.toggle("open", open);
+  $("veil").classList.toggle("open", open);
+  $("drawer").setAttribute("aria-hidden", String(!open));
+}
+function change(id, d){
+  cart[id] = (cart[id] || 0) + d;
+  if (cart[id] <= 0) delete cart[id];
+  renderCart();
+}
+
+document.addEventListener("click", function(e){
+  var t = e.target;
+  if (t.dataset.cat){ activeCat = t.dataset.cat; renderFilters(); renderGrid(); }
+  if (t.dataset.add){ change(t.dataset.add, 1); t.textContent = "Ajouté"; setTimeout(function(){ t.textContent = "Ajouter"; }, 900); }
+  if (t.dataset.inc) change(t.dataset.inc, 1);
+  if (t.dataset.dec) change(t.dataset.dec, -1);
+});
+$("cartBtn").onclick = function(){ openCart(true); };
+$("closeCart").onclick = $("veil").onclick = function(){ openCart(false); };
+document.addEventListener("keydown", function(e){ if (e.key === "Escape") openCart(false); });
+
+$("order").onclick = function(){
+  var name = $("name").value.trim(), city = $("city").value.trim();
+  if (!name || !city){ alert("Entrez votre nom et votre ville."); return; }
+  var total = 0;
+  var lines = Object.keys(cart).map(function(id){
+    var p = find(id); total += p.price * cart[id];
+    return "- " + p.name + " x" + cart[id] + " = " + money(p.price * cart[id]);
+  });
+  var msg = "Bonjour, je veux commander :\n" + lines.join("\n") + "\nTotal : " + money(total) +
+            "\nNom : " + name + "\nVille : " + city;
+  window.open("https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(msg), "_blank");
+};
+
+$("waLink").href = "https://wa.me/" + WHATSAPP;
+$("year").textContent = new Date().getFullYear();
+renderFilters(); renderGrid(); renderCart();
+</script>
+</body>
+</html>
